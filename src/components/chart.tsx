@@ -7,7 +7,7 @@ const XAxisLabel = 'Completeness of vision ->';
 const YAxisLabel = 'Ability to execute ->';
 
 export default function Chart(props: React.PropsWithChildren<IChartProps>) {
-    const {data, editItem} = props;
+    const {data, editItemFull} = props;
     const chartRef = useRef(null);
     const classes = useStyles();
 
@@ -91,10 +91,9 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
             // @ts-ignore
             svg.selectAll('g.x.axis').call(xAxis);
 
-            const item = svg.selectAll('g.node').data(data, (d) => {
-                // @ts-ignore
-                return d.label;
-            });
+            const item = svg.selectAll('g.node').data(data.map((dataItem, index) => {
+                return {...dataItem, index};
+            }));
 
             svg
                 .append('g')
@@ -131,7 +130,6 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
 
             const dragHandler = d3.drag()
                 .on('drag', (d) => {
-                    console.log(d);
                     // d3.select(d)
                     //     .attr('x', d.x)
                     //     .attr('y', d.y);
