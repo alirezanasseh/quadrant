@@ -3,17 +3,6 @@ import Layout from './layout/layout';
 import {Chart, Table} from './components';
 import {createUseStyles} from 'react-jss';
 
-const useStyles = createUseStyles({
-    row: {
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between'
-    },
-    col: {
-        width: '100%'
-    }
-});
-
 function App() {
     const classes = useStyles();
 
@@ -30,5 +19,24 @@ function App() {
         </Layout>
     );
 }
+
+const useStyles = createUseStyles({
+    row: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+
+        '@media (max-width: 1024px)': {
+            flexDirection: 'column'
+        }
+    },
+    col: {
+        width: '100%',
+
+        '@media (max-width: 1024px)': {
+            marginBottom: '10px'
+        }
+    }
+});
 
 export default App;
