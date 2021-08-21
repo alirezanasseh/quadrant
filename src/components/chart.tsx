@@ -2,6 +2,7 @@ import React, {useEffect, useRef} from 'react';
 import * as d3 from 'd3';
 import {createUseStyles} from 'react-jss';
 import {IChartProps} from '../types/chart';
+import {IDataItem} from '../types/data';
 
 const XAxisLabel = 'Completeness of vision ->';
 const YAxisLabel = 'Ability to execute ->';
@@ -128,8 +129,14 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
                     return d.label;
                 });
 
-            const dragHandler = d3.drag()
-                .on('drag', (d) => {
+            const dragHandler = d3.drag<SVGCircleElement, IDataItem>()
+                .on('drag', function (event) {
+                    d3.select(this).attr('cx', event.x).attr('cy', event.y);
+                    let newItem = {...event.subject};
+                    newItem.vision = event.x;
+                    newItem.ability = event.y;
+                    delete newItem.index;
+                    editItemFull(event.subject.index, newItem);
                     // d3.select(d)
                     //     .attr('x', d.x)
                     //     .attr('y', d.y);
