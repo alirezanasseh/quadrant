@@ -1,10 +1,17 @@
 import React, {useContext} from 'react';
 import {createUseStyles} from 'react-jss';
 import {MainContext} from '../context/mainProvider';
+import {IField} from '../types/data';
 
 export default function Table() {
     const classes = useStyles();
     const {data, addItem, editItem, removeItem} = useContext(MainContext);
+
+    const handleChange = (e: React.FormEvent<HTMLInputElement>, index: number) => {
+        if(editItem){
+            editItem(index, e.currentTarget.name as IField, e.currentTarget.value);
+        }
+    };
 
     return (
         <div>
@@ -23,13 +30,31 @@ export default function Table() {
                     {data && data.map((item, index) =>
                         <tr>
                             <td>
-                                <input type={'text'} value={item.label}/>
+                                <input
+                                    type={'text'}
+                                    name={'label'}
+                                    value={item.label}
+                                    onChange={(e) => handleChange(e, index)}
+                                    key={`label-${index}`}
+                                />
                             </td>
                             <td>
-                                <input type={'number'} value={item.vision}/>
+                                <input
+                                    type={'number'}
+                                    name={'vision'}
+                                    value={item.vision}
+                                    onChange={(e) => handleChange(e, index)}
+                                    key={`vision-${index}`}
+                                />
                             </td>
                             <td>
-                                <input type={'number'} value={item.ability}/>
+                                <input
+                                    type={'number'}
+                                    name={'ability'}
+                                    value={item.ability}
+                                    onChange={(e) => handleChange(e, index)}
+                                    key={`ability-${index}`}
+                                />
                             </td>
                             <td>
                                 <button className={classes.button}>Delete</button>
