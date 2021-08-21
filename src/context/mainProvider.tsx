@@ -1,6 +1,6 @@
 import React, {createContext, useState} from 'react';
 import {IMainProvider} from '../types/mainProvider';
-import {IData, IDataItem} from '../types/data';
+import {IData, IDataItem, IField} from '../types/data';
 
 export const MainContext = createContext<IMainProvider>({});
 
@@ -62,14 +62,15 @@ const MainProvider = (props: React.PropsWithChildren<{}>) => {
         updateLocalStorageData(newData);
     };
 
-    const editItem = (index: number, item: IDataItem) => {
+    // Editing an item in the list
+    const editItem = (index: number, field: IField, value: string | number) => {
         if(!state.data || state.data.length === 0){
             return;
         }
 
         // Updating state
         let newData = [...state.data];
-        newData[index] = item;
+        newData[index] = {...newData[index], [field]: value};
         setState({...state, data: newData});
 
         // Update local storage data
