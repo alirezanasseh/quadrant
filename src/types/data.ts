@@ -1,3 +1,5 @@
+export type IField = 'label' | 'vision' | 'ability';
+
 export interface IDataItem {
     label: string;
     vision: number;
