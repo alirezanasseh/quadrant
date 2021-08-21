@@ -1,22 +1,15 @@
-import React, {useContext, useEffect, useRef} from 'react';
-import {MainContext} from '../context/mainProvider';
+import React, {useEffect, useRef} from 'react';
 import * as d3 from 'd3';
-import {IDataItem} from '../types/data';
 import {createUseStyles} from 'react-jss';
+import {IChartProps} from '../types/chart';
 
 const XAxisLabel = 'Completeness of vision ->';
 const YAxisLabel = 'Ability to execute ->';
-let item: d3.Selection<d3.BaseType, IDataItem, SVGGElement, unknown>;
 
-export default function Chart() {
-    const {data} = useContext(MainContext);
+export default function Chart(props: React.PropsWithChildren<IChartProps>) {
+    const {data, editItem} = props;
     const chartRef = useRef(null);
     const classes = useStyles();
-
-    const padExtent = (e: any, p: any = undefined) => {
-        if (p === undefined) p = 1;
-        return [e[0] - p, e[1] + p];
-    }
 
     const initializeChart = () => {
         const margins = {
@@ -30,6 +23,8 @@ export default function Chart() {
         const height = 600;
         const domainWidth = width - margins.left - margins.right;
         const domainHeight = height - margins.top - margins.bottom;
+
+        d3.select(chartRef.current).select('svg').remove();
 
         const svg = d3
             .select(chartRef.current)
@@ -56,24 +51,12 @@ export default function Chart() {
         if(data){
             const x = d3
                 .scaleLinear()
-                .domain(
-                    padExtent(
-                        d3.extent(data, (d) => {
-                            return d.vision;
-                        })
-                    )
-                )
+                .domain([0, 100])
                 .range([0, domainWidth]);
 
             const y = d3
                 .scaleLinear()
-                .domain(
-                    padExtent(
-                        d3.extent(data, (d) => {
-                            return d.ability;
-                        })
-                    )
-                )
+                .domain([0, 100])
                 .range([domainHeight, 0]);
 
             svg
@@ -108,7 +91,7 @@ export default function Chart() {
             // @ts-ignore
             svg.selectAll('g.x.axis').call(xAxis);
 
-            item = svg.selectAll('g.node').data(data, (d) => {
+            const item = svg.selectAll('g.node').data(data, (d) => {
                 // @ts-ignore
                 return d.label;
             });
@@ -145,10 +128,20 @@ export default function Chart() {
                 .text((d) => {
                     return d.label;
                 });
+
+            const dragHandler = d3.drag()
+                .on('drag', (d) => {
+                    console.log(d);
+                    // d3.select(d)
+                    //     .attr('x', d.x)
+                    //     .attr('y', d.y);
+                });
+
+            dragHandler(svg.selectAll('circle'));
         }
     }
 
-    useEffect(initializeChart, []);
+    useEffect(initializeChart, [data]);
 
     return (
         <div className={classes.chartContainer}>
