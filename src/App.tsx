@@ -64,7 +64,21 @@ function App() {
         // Updating state
         let newData = [...data];
         newData[index] = {...newData[index], [field]: value};
+        setData(newData);
 
+        // Update local storage data
+        updateLocalStorageData(newData);
+    };
+
+    const editItemFull = (index: number, item: IDataItem) => {
+        console.log(index, item);
+        if(!data || data.length === 0){
+            return;
+        }
+
+        // Updating state
+        let newData = [...data];
+        newData[index] = item;
         setData(newData);
 
         // Update local storage data
@@ -84,7 +98,7 @@ function App() {
                 <div className={classes.col}>
                     <Chart
                         data={data}
-                        editItem={editItem}
+                        editItemFull={editItemFull}
                     />
                 </div>
                 <div className={classes.col}>
