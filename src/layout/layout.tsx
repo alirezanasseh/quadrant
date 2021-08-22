@@ -1,5 +1,6 @@
 import React from 'react';
 import {createUseStyles} from 'react-jss';
+import {ITheme} from '../types/theme';
 
 export default function Layout(props: React.PropsWithChildren<{ title: string }>) {
     const classes = useStyles();
@@ -16,7 +17,7 @@ export default function Layout(props: React.PropsWithChildren<{ title: string }>
     );
 }
 
-const useStyles = createUseStyles({
+const useStyles = createUseStyles((theme: ITheme) => ({
     container: {
         width: '100%',
         maxWidth: '1536px',
@@ -24,9 +25,9 @@ const useStyles = createUseStyles({
     },
     header: {
         padding: '5px',
-        borderBottom: '1px solid silver'
+        borderBottom: `1px solid ${theme.silver}`
     },
     content: {
         padding: '20px'
     }
-})
+}));
