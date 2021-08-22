@@ -2,6 +2,7 @@ import React from 'react';
 import {createUseStyles} from 'react-jss';
 import {IField} from '../types/data';
 import {ITableProps} from '../types/table';
+import {ITheme} from '../types/theme';
 
 export default function Table(props: React.PropsWithChildren<ITableProps>) {
     const {data, addItem, editItem, removeItem} = props;
@@ -55,6 +56,7 @@ export default function Table(props: React.PropsWithChildren<ITableProps>) {
                                     value={item.vision}
                                     onChange={(e) => handleChange(e, index)}
                                     key={`vision-${index}`}
+                                    min={0}
                                     max={100}
                                 />
                             </td>
@@ -65,6 +67,7 @@ export default function Table(props: React.PropsWithChildren<ITableProps>) {
                                     value={item.ability}
                                     onChange={(e) => handleChange(e, index)}
                                     key={`ability-${index}`}
+                                    min={0}
                                     max={100}
                                 />
                             </td>
@@ -80,12 +83,23 @@ export default function Table(props: React.PropsWithChildren<ITableProps>) {
     );
 }
 
-const useStyles = createUseStyles({
+const useStyles = createUseStyles((theme: ITheme) => ({
     button: {
-        backgroundColor: '#dfdfe5',
-        border: '1px solid #bbbbc0',
+        backgroundColor: theme.silver,
+        border: `1px solid ${theme.lightSilver}`,
         borderRadius: '5px',
-        padding: '3px 10px'
+        padding: '3px 10px',
+
+        '&:hover': {
+            backgroundColor: theme.gray,
+            color: 'white'
+        },
+
+        '&:focus': {
+            outline: 'none',
+            border: `1px solid ${theme.blue}`,
+            boxShadow: `inset 0 0 2px ${theme.blue}`
+        }
     },
     tableContainer: {
         marginTop: '5px',
@@ -93,7 +107,7 @@ const useStyles = createUseStyles({
             width: '100%',
         },
         '& th': {
-            backgroundColor: '#a4b1bc',
+            backgroundColor: theme.grayBlue,
             borderRadius: '5px',
             color: 'white',
             fontWeight: 'normal',
@@ -103,19 +117,19 @@ const useStyles = createUseStyles({
         },
         '& input': {
             width: 'calc(100% - 10px)',
-            border: '1px solid #bbbbc0',
+            border: `1px solid ${theme.lightSilver}`,
             borderRadius: '5px',
             boxSizing: 'border-boxing',
             padding: '5px',
 
             '&:focus': {
                 outline: '0px',
-                border: '1px solid #264073',
-                boxShadow: 'inset 0 0 2px #264073'
+                border: `1px solid ${theme.blue}`,
+                boxShadow: `inset 0 0 2px ${theme.blue}`
             }
         },
         '& button': {
             width: '100%'
         }
     },
-});
+}));
