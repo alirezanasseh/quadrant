@@ -110,6 +110,7 @@ const useStyles = createUseStyles((theme: ITheme) => ({
             backgroundColor: theme.grayBlue,
             borderRadius: '5px',
             color: 'white',
+            fontFamily: 'sans-serif',
             fontWeight: 'normal',
             '&:first-child': {
                 width: '40%'
