@@ -4,6 +4,18 @@ import {Chart, Table} from './components';
 import {createUseStyles} from 'react-jss';
 import {IData, IDataItem, IField} from './types/data';
 import {initialData} from './helper/faker';
+import {ThemeProvider} from 'react-jss';
+import {ITheme} from './types/theme';
+
+const theme: ITheme = {
+    blue: '#327297',
+    grayBlue: '#a4b1bc',
+    grayTransparent: 'rgba(59, 66, 77, 0.7)',
+    silver: '#dfdfe5',
+    gray: '#5F5F5FFF',
+    lightSilver: '#bbbbc0',
+    darkGray: '#414241'
+};
 
 function App() {
     const classes = useStyles();
@@ -57,8 +69,13 @@ function App() {
         }
 
         // Checking number fields
-        if((field === 'vision' || field === 'ability') && value > 100){
-            value = 100;
+        if(field === 'vision' || field === 'ability'){
+            if(value < 0){
+                value = 0
+            }
+            if(value > 100){
+                value = 100;
+            }
         }
 
         // Updating state
@@ -93,24 +110,26 @@ function App() {
     };
 
     return (
-        <Layout title={'Home'}>
-            <div className={classes.row}>
-                <div className={classes.col}>
-                    <Chart
-                        data={data}
-                        editItemFull={editItemFull}
-                    />
+        <ThemeProvider theme={theme}>
+            <Layout title={'Home'}>
+                <div className={classes.row}>
+                    <div className={classes.col}>
+                        <Chart
+                            data={data}
+                            editItemFull={editItemFull}
+                        />
+                    </div>
+                    <div className={classes.col}>
+                        <Table
+                            data={data}
+                            addItem={addItem}
+                            editItem={editItem}
+                            removeItem={removeItem}
+                        />
+                    </div>
                 </div>
-                <div className={classes.col}>
-                    <Table
-                        data={data}
-                        addItem={addItem}
-                        editItem={editItem}
-                        removeItem={removeItem}
-                    />
-                </div>
-            </div>
-        </Layout>
+            </Layout>
+        </ThemeProvider>
     );
 }
 
