@@ -6,28 +6,34 @@ import {IDataItem} from '../types/data';
 import {ITheme} from '../types/theme';
 import {useTheme} from 'react-jss';
 
-const XAxisLabel = 'Completeness of vision ->';
-const YAxisLabel = 'Ability to execute ->';
+const XAxisLabel = 'Completeness of vision →';
+const YAxisLabel = 'Ability to execute →';
+
+const margins = {
+    left: 50,
+    right: 0,
+    top: 0,
+    bottom: 50
+};
+
+const chartPosition = {
+    x: 260,
+    y: 515
+};
+
+const width = 400 + margins.left + margins.right;
+const height = 400 + margins.top + margins.bottom;
+const domainWidth = width - margins.left - margins.right;
+const domainHeight = height - margins.top - margins.bottom;
 
 export default function Chart(props: React.PropsWithChildren<IChartProps>) {
     const {data, editItemFull} = props;
+
     const chartRef = useRef(null);
     const classes = useStyles();
     const theme = useTheme<ITheme>();
 
     const initializeChart = () => {
-        const margins = {
-            left: 70,
-            right: 30,
-            top: 20,
-            bottom: 50
-        };
-
-        const width = 700;
-        const height = 600;
-        const domainWidth = width - margins.left - margins.right;
-        const domainHeight = height - margins.top - margins.bottom;
-
         d3.select(chartRef.current).select('svg').remove();
 
         const svg = d3
@@ -75,7 +81,7 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
                 .attr('fill', theme.darkGray)
                 .attr('text-anchor', 'start')
                 .attr('x', 0)
-                .attr('y', height - 35)
+                .attr('y', height - 30)
                 .text(XAxisLabel);
 
             svg
@@ -83,7 +89,7 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
                 .attr('fill', theme.darkGray)
                 .attr('text-anchor', 'start')
                 .attr('x', height * -1 + margins.bottom + margins.top)
-                .attr('y', -30)
+                .attr('y', -10)
                 .attr('transform', 'rotate(-90)')
                 .text(YAxisLabel);
 
@@ -91,18 +97,26 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
             let yAxis = d3.axisLeft(y).tickSize(0).tickValues([]);
 
             // @ts-ignore
-            svg.selectAll('g.y.axis').call(yAxis);
+            svg.selectAll('g.y.axis').call(yAxis).attr('stroke-width', '2px');
             // @ts-ignore
-            svg.selectAll('g.x.axis').call(xAxis);
+            svg.selectAll('g.x.axis').call(xAxis).attr('stroke-width', '2px');
 
             const item = svg.selectAll('g.node').data(data.map((dataItem, index) => {
                 return {...dataItem, index};
             }));
 
+            let topAxis = d3.axisTop(x).tickSize(0).tickValues([]);
             svg
                 .append('g')
-                .attr('class', 'qxgrid')
-                .call(xAxis.tickFormat(null).tickSize(550).ticks(0));
+                .attr('stroke-width', '2px')
+                .call(topAxis);
+
+            let rightAxis = d3.axisRight(y).tickSize(0).tickValues([]);
+            svg
+                .append('g')
+                .attr('transform', `translate(${width - margins.left - 1}, 0)`)
+                .attr('stroke-width', '2px')
+                .call(rightAxis);
 
             const itemGroup = item
                 .enter()
@@ -120,9 +134,7 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
 
             itemGroup
                 .append('circle')
-                .attr('r', (d) => {
-                    return 10
-                })
+                .attr('r', 15)
                 .attr('class', 'dot')
                 .style('fill', theme.blue)
                 .append('title')
@@ -137,14 +149,15 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
                     return `translate(5, 30)`
                 })
                 .attr('fill', theme.blue)
-                .attr('font-size', '14px');
+                .attr('font-family', 'sans-serif')
+                .attr('font-size', '13px');
 
             const dragHandler = d3.drag<SVGCircleElement, IDataItem>()
                 .on('drag', function (event) {
                     d3.select(this).attr('cx', event.x).attr('cy', event.y);
                     let newItem = {...event.subject};
-                    newItem.vision = Math.floor((event.x - 280) / domainWidth * 100);
-                    newItem.ability = Math.floor((665 - event.y) / domainHeight * 100);
+                    newItem.vision = Math.floor((event.x - chartPosition.x) / domainWidth * 100);
+                    newItem.ability = Math.floor((chartPosition.y - event.y) / domainHeight * 100);
                     delete newItem.index;
                     editItemFull(event.subject.index, newItem);
                 });
@@ -187,28 +200,31 @@ const useStyles = createUseStyles((theme: ITheme) => ({
             background: theme.grayTransparent,
             color: 'white',
             borderRadius: '5px',
-            padding: '0.1rem 2rem',
-            opacity: '0.5'
+            padding: '0.1rem 1rem',
+            opacity: '0.5',
+            fontSize: '0.7rem'
         },
         '& #challenger': {
             position: 'absolute',
-            top: '45px',
-            left: '145px'
-        },
-        '& #visionaries': {
-            position: 'absolute',
-            top: '500px',
-            left: '470px'
-        },
-        '& #niche': {
-            position: 'absolute',
-            top: '500px',
-            left: '145px'
+            top: `${margins.top + 8}px`,
+            left: `${width / 4}px`,
         },
         '& #leader': {
             position: 'absolute',
-            top: '45px',
-            left: '470px'
+            top: `${margins.top + 8}px`,
+            left: `${width / 4 * 3}px`,
+            transform: 'translateX(-50%)'
+        },
+        '& #niche': {
+            position: 'absolute',
+            top: `${height - margins.bottom - 25}px`,
+            left: `${width / 4}px`,
+        },
+        '& #visionaries': {
+            position: 'absolute',
+            top: `${height - margins.bottom - 25}px`,
+            left: `${width / 4 * 3}px`,
+            transform: 'translateX(-50%)'
         }
     }
 }));
