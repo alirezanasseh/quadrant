@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import {createUseStyles} from 'react-jss';
 import {IChartProps} from '../types/chart';
 import {IDataItem} from '../types/data';
+import {ITheme} from '../types/theme';
+import {useTheme} from 'react-jss';
 
 const XAxisLabel = 'Completeness of vision ->';
 const YAxisLabel = 'Ability to execute ->';
@@ -11,6 +13,7 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
     const {data, editItemFull} = props;
     const chartRef = useRef(null);
     const classes = useStyles();
+    const theme = useTheme<ITheme>();
 
     const initializeChart = () => {
         const margins = {
@@ -38,14 +41,14 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
         svg
             .append("rect")
             .attr('fill', 'none')
-            .attr("stroke", '#a4b1bc')
+            .attr("stroke", theme.grayBlue)
             .attr("width", domainWidth)
             .attr("height", domainHeight / 2);
 
         svg
             .append("rect")
             .attr('fill', 'none')
-            .attr("stroke", '#a4b1bc')
+            .attr("stroke", theme.grayBlue)
             .attr("width", domainWidth / 2)
             .attr("height", domainHeight);
 
@@ -69,23 +72,23 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
 
             svg
                 .append('text')
-                .attr('fill', '#414241')
-                .attr('text-anchor', 'end')
-                .attr('x', width / 1.7)
+                .attr('fill', theme.darkGray)
+                .attr('text-anchor', 'start')
+                .attr('x', 0)
                 .attr('y', height - 35)
                 .text(XAxisLabel);
 
             svg
                 .append('text')
-                .attr('fill', '#414241')
-                .attr('text-anchor', 'middle')
-                .attr('x', -250)
+                .attr('fill', theme.darkGray)
+                .attr('text-anchor', 'start')
+                .attr('x', height * -1 + margins.bottom + margins.top)
                 .attr('y', -30)
                 .attr('transform', 'rotate(-90)')
                 .text(YAxisLabel);
 
-            let xAxis = d3.axisBottom(x).tickPadding(1);
-            let yAxis = d3.axisLeft(y).tickPadding(2);
+            let xAxis = d3.axisBottom(x).tickSize(0).tickValues([]);
+            let yAxis = d3.axisLeft(y).tickSize(0).tickValues([]);
 
             // @ts-ignore
             svg.selectAll('g.y.axis').call(yAxis);
@@ -121,25 +124,29 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
                     return 10
                 })
                 .attr('class', 'dot')
-                .style('fill', (d) => {
-                    return '#327297'
-                })
+                .style('fill', theme.blue)
                 .append('title')
                 .text((d) => {
                     return d.label;
                 });
 
+            itemGroup
+                .append('text')
+                .text((d) => d.label)
+                .attr('transform', (d) => {
+                    return `translate(5, 30)`
+                })
+                .attr('fill', theme.blue)
+                .attr('font-size', '14px');
+
             const dragHandler = d3.drag<SVGCircleElement, IDataItem>()
                 .on('drag', function (event) {
                     d3.select(this).attr('cx', event.x).attr('cy', event.y);
                     let newItem = {...event.subject};
-                    newItem.vision = event.x;
-                    newItem.ability = event.y;
+                    newItem.vision = Math.floor((event.x - 280) / domainWidth * 100);
+                    newItem.ability = Math.floor((665 - event.y) / domainHeight * 100);
                     delete newItem.index;
                     editItemFull(event.subject.index, newItem);
-                    // d3.select(d)
-                    //     .attr('x', d.x)
-                    //     .attr('y', d.y);
                 });
 
             dragHandler(svg.selectAll('circle'));
@@ -172,12 +179,12 @@ export default function Chart(props: React.PropsWithChildren<IChartProps>) {
     );
 }
 
-const useStyles = createUseStyles({
+const useStyles = createUseStyles((theme: ITheme) => ({
     chartContainer: {
         position: 'relative',
         '& .quadrant-title': {
             position: 'absolute',
-            background: 'rgba(59, 66, 77, 0.7)',
+            background: theme.grayTransparent,
             color: 'white',
             borderRadius: '5px',
             padding: '0.1rem 2rem',
@@ -204,4 +211,4 @@ const useStyles = createUseStyles({
             left: '470px'
         }
     }
-});
+}));
